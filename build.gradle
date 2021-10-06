@@ -8,23 +8,33 @@
 
 plugins {
     id 'java-library'
-    id 'maven-publish'
+    id 'maven'
     id 'signing'
 }
 
 group = 'pt.unparallel'
+archivesBaseName = 'connector'
 version = '1.0'
 
-java {
-    withJavadocJar()
-    withSourcesJar()
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
 }
 
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+artifacts {
+    archives javadocJar, sourcesJar
+}
 repositories {
     // Use JCenter for resolving dependencies.
   mavenCentral();
 }
-
+signing {
+    sign configurations.archives
+}
 dependencies {
     // Use JUnit test framework.
     testImplementation 'junit:junit:4.13'
@@ -36,23 +46,19 @@ dependencies {
     implementation 'com.google.guava:guava:29.0-jre'
     compile group: 'com.keysolutions', name: 'java-ddp-client', version: '1.0.0.+'
 }
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
+      repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
 
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = 'connector'
-            from components.java
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
-                }
-            }
-            pom {
+      snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+      pom.project {
                 name = 'IoT Catalogue external service connector'
                 description = 'This library allows the interaction between a java application and IoT Catalogue'
                 url = 'https://github.com/unparallel-innovation/IoT-Catalogue-External-Service-java'
@@ -75,27 +81,8 @@ publishing {
                     connection = 'scm:git:git://github.com/unparallel-innovation/IoT-Catalogue-External-Service-java.git'
                     developerConnection = 'scm:git:ssh://github.com/unparallel-innovation/IoT-Catalogue-External-Service-java.git'
                     url = 'https://github.com/unparallel-innovation/IoT-Catalogue-External-Service-java'
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            // change URLs to point to your repos, e.g. http://my.org/repo
-            def releasesRepoUrl = layout.buildDirectory.dir('repos/releases')
-            def snapshotsRepoUrl = layout.buildDirectory.dir('repos/snapshots')
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-        }
-    }
-}
-
-signing {
-    sign publishing.publications.mavenJava
-}
-
-
-javadoc {
-    if(JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
+                    }
+                    }
+  }
+  }
 }
