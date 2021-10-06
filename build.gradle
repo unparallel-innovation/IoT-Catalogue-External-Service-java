@@ -43,8 +43,7 @@ dependencies {
     api 'org.apache.commons:commons-math3:3.6.1'
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'com.google.guava:guava:29.0-jre'
-    compile group: 'com.keysolutions', name: 'java-ddp-client', version: '1.0.0.+'
+    compile group: 'com.keysolutions', name: 'java-ddp-client', version: '1.0.0.7'
 }
 uploadArchives {
   repositories {
