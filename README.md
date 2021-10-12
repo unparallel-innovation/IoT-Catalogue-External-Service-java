@@ -20,7 +20,7 @@ Connection instance between a Java application and IoT Catalogue, it receives th
 ```java
 String analyseRepositoryToken = "xxx";
 HashMap<String, String> serviceDescription = new HashMap<String, String>();
-serviceDescription.put("documentType","pdf");
+serviceDescription.put("repositoryType","github");
 
 Connector connector = new Connector("https://www.iot-catalogue.com",analyseRepositoryToken, serviceDescription){
 	@Override
@@ -28,11 +28,11 @@ Connector connector = new Connector("https://www.iot-catalogue.com",analyseRepos
 		System.out.println(name);  //analyse github
 		System.out.println(props); //{repositoryType=github}
 	};
-	
+
 	@Override
 	public void onActionAdded(Action action) {
 		// TODO Auto-generated method stub
-		System.out.println(action.getValue()); 
+		System.out.println(action.getValue());
 		//{action=analyseRepository, props={id=5c9e411abc89249a12102199, url= https://github.com/waveshare/LCD-show, repositoryType=github}, state=added}
 		action.reply("some reply"); // Reply to the action
 	}
