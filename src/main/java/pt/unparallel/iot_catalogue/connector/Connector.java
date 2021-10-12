@@ -260,14 +260,20 @@ public class Connector{
 	 * @param collectionName
 	 */
 	private void subscribeToCollection(String collectionName) {
+		
+		Object fields = null;
+		
+		if(connectionProps != null) {
+			HashMap<String, Object>  props = (HashMap<String, Object> )connectionProps;
+			if(props != null) {
+				fields = props.get("dataFields");
+				if(fields == null) {
+					fields = props.get("fields");
+				}
+			}
+			
+		}	
 
-		HashMap<String, Object>  props = (HashMap<String, Object> )connectionProps;
-
-		Object fields = props.get("dataFields");
-
-		if(fields == null) {
-			fields = props.get("fields");
-		}
 
 		HashMap<String, Object> propsToMethod = new HashMap<String, Object>();
 
