@@ -218,7 +218,7 @@ public class Connector{
 				if(serviceFound) {
 					onSubscribedToService(name, props);
 				}
-				subscribeToQueue();
+				subscribeToExternalServiceCommunication();
 				subscribeToData();
 			}
 		}
@@ -227,13 +227,13 @@ public class Connector{
 
 
 	/**
-	 * Subscribes to service queue and listen to actions coming from IoT Catalogue
+	 * Subscribes to service actions coming from IoT Catalogue
 	 */
-	private void subscribeToQueue() {
-		ddpClient.subscribe("externalServiceQueue", null,new DDPListener() {
+	private void subscribeToExternalServiceCommunication() {
+		ddpClient.subscribe("subscribeToExternalServiceCommunication", null,new DDPListener() {
 			@Override
 			public void onReady(String callId) {
-				logger.info("subscribed to service queue");
+				logger.info("subscribed to service actions");
 			}
 		});
 	}
@@ -333,7 +333,7 @@ public class Connector{
 			}
 			@Override
 			public void onCollectionUpdate(String collectionName, String actionName, String id, Object obj) {
-				if(collectionName.equals("queue") && actionName.equals("added")){
+				if(collectionName.equals(actionsCollectionName) && actionName.equals("added")){
 					String state =( (Map<String, String>) obj).get("state");
 					if(state!=null && state.equals("added")) {
 						Action action = new Action(ddpClient,fixId(id), obj);
@@ -342,7 +342,7 @@ public class Connector{
 
 
 				}
-				if(!collectionName.equals("queue")) {
+				if(!collectionName.equals(actionsCollectionName)) {
 					onDataChange(collectionName, actionName, fixId(id), obj);
 				}
 
@@ -476,6 +476,8 @@ public class Connector{
 	 * Timer used by the scheduler
 	 */
 	private Timer timer;
+	
+	private static final String actionsCollectionName = "externalServiceCommunication";
 
 
 

@@ -3,89 +3,76 @@ package pt.unparallel.iot_catalogue.connector;
 import com.keysolutions.ddpclient.DDPClient;
 
 /**
- * 
- * Action added to the queue by IoT Catalogue
- * 
+ * Action added by IoT Catalogue
  * @author antoniogoncalves
  *
  */
 public class Action {
 
+
 	/**
-	 * Action instance
 	 * 
-	 * @param ddpClient DDPClient instance
-	 * @param queueId Id of the queue instance
+	 * @param ddpClient ddpClient DDPClient instance
+	 * @param id of the action instance
 	 * @param value Of the actions
 	 */
-	public Action( DDPClient ddpClient, String queueId, Object value) {
+	
+	public Action( DDPClient ddpClient, String id, Object value) {
 
 		this.ddpClient = ddpClient;
-		this.queueId = queueId;
+		this.id = id;
 		this.value = value;
 	}
 	
 	
 	/**
-	 * Returns queue id
-	 * 
-	 * @return Queue id
+	 * Returns id
+	 * @return
 	 */
-	public String getQueueId() {
-		return queueId;
+	public String getId() {
+		return id;
 	}
 	
+
+	
 	/**
+	 * Gets the action value
 	 * 
-	 * Gets queue value
-	 * 
-	 * @return Object with queue object
+	 * @return Object with action value
 	 */
 	public Object getValue() {
 		return value;
 	}
 	
-	/**
-	 * 
-	 * Method used to reply to IoT Catalogue with action result
-	 * 
-	 * @param result This is the result available on the queue after the external app processing the action
-	 * @param error Error happened during processing the action
-	 */
-	public void reply(Object result, Object error) {
-	
-		Object[] params = new Object[] {queueId, result, error};
-		ddpClient.call("actionCallback", params);
-		
-	}
 
 	/**
 	 * 
 	 * Method used to reply to IoT Catalogue with action result
 	 * 
-	 * @param result This is the result available on the queue after the external app processing the action
+	 * @param result This is the result available after processing the action
+	 * @param error Error happened during processing the action
+	 */
+	public void reply(Object result, Object error) {
+	
+		Object[] params = new Object[] {id, result, error};
+		ddpClient.call("actionCallback", params);
+		
+	}
+	
+	/**
+	 * Method used to reply to IoT Catalogue with action result
+	 * @param result This is the result available after processing the action
 	 */
 	public void reply(Object result) {
 		reply(result, null);
 	}
 	
 	
-	/**
-	 * 
-	 * DDPClient instance
-	 * 
-	 */
+
 	private final DDPClient ddpClient;
+
+	private final String id;
 	
-	/**
-	 * Queue id
-	 */
-	private final String queueId;
-	
-	/**
-	 * 
-	 * queue value
-	 * 
-	 */
+
 	private final Object value;
 }
