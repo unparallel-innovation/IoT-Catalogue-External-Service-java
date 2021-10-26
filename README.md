@@ -15,7 +15,7 @@ Connection instance between a Java application and IoT Catalogue, it receives th
 
 ## Examples
 
-### PDF Exporter Service
+### Repository Analysis service
 
 ```java
 String analyseRepositoryToken = "xxx";
