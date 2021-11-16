@@ -193,36 +193,22 @@ public class Connector{
 					that.disconnect();
 				} else {
 					logger.info("loggedIn");
-					getConnectionService();
+					registerExternalServiceConnection();
+					subscribeToData();
 				}
 			}
 		});
 	}
 
 
-	/**
-	 *
-	 * Obtains the service props based on app description
-	 *
-	 */
-	private void getConnectionService() {
+	private void registerExternalServiceConnection() {
 		Object[] params = new Object[] {serviceDescription};
-
-		ddpClient.call("getConnectionService", params, new DDPListener() {
+		ddpClient.subscribe("registerExternalServiceConnection", params,new DDPListener() {
 			@Override
-			public void onResult(Map<String, Object> resultFields) {
-				Map<String, Object> hashMap = (Map<String, Object>)resultFields.get("result");
-				Boolean serviceFound =(Boolean) hashMap.get("serviceFound");
-				Object props = hashMap.get("props");
-				String name = (String) hashMap.get("name");
-				if(serviceFound) {
-					onSubscribedToService(name, props);
-				}
-				subscribeToExternalServiceCommunication();
-				subscribeToData();
+			public void onReady(String callId) {
+				logger.info("subscribed to active connection");
 			}
-		}
-		);
+		});
 	}
 
 
@@ -269,12 +255,11 @@ public class Connector{
 				fields = props.get("dataFields");
 				if(fields == null) {
 					fields = props.get("fields");
+					
 				}
 			}
 			
 		}	
-
-
 		HashMap<String, Object> propsToMethod = new HashMap<String, Object>();
 
 		propsToMethod.put("fields",fields);
@@ -329,6 +314,7 @@ public class Connector{
 			@Override
 			public void onDisconnectedFromRemote() {
 				// TODO Auto-generated method stub
+				connectionState = "disconnected";
 				onDisconnected();
 			}
 			@Override
@@ -342,7 +328,24 @@ public class Connector{
 
 
 				}
-				if(!collectionName.equals(actionsCollectionName)) {
+				
+				if(collectionName.equals(activeConnectionsCollectionName)){
+					Map<String, Object> hashMap = (Map<String, Object>)obj;
+					
+					String newConnectionState = (String)hashMap.get("state");
+					if(!newConnectionState.equals(connectionState) && newConnectionState.equals("serviceAssigned")) {
+						Map<String, Object> externalService = (Map<String, Object>)hashMap.get("externalService");
+						String name = (String)externalService.get("name");
+						Object props = externalService.get("props");
+						onSubscribedToService(name, props);
+						subscribeToExternalServiceCommunication();
+					}
+					
+					
+					connectionState = newConnectionState;
+					
+				}
+				if(!collectionName.equals(actionsCollectionName) && !collectionName.equals(activeConnectionsCollectionName)) {
 					onDataChange(collectionName, actionName, fixId(id), obj);
 				}
 
@@ -479,7 +482,9 @@ public class Connector{
 	
 	private static final String actionsCollectionName = "externalServiceCommunication";
 
+	private static final String activeConnectionsCollectionName = "externalServiceActiveConnections";
 
+	private String connectionState = "disconnected";
 
 
 }
