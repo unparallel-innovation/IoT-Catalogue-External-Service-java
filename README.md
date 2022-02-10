@@ -3,6 +3,12 @@
 
 Allows the communication between a Java application and IoT Catalogue throgh a queue and data subscription.
 
+## Installation
+
+This application is available on the maven repository, the following link gives instructions on how to include this connector on your Java project using gradle, maven and other repositories
+
+https://search.maven.org/artifact/pt.unparallel/connector/3.0.0/jar
+
 ## Connection
 
 Connection instance between a Java application and IoT Catalogue, it receives the following parameters
